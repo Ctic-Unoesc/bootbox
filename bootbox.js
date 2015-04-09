@@ -82,7 +82,9 @@
     // show the dialog immediately by default
     show: true,
     // dialog container
-    container: "body"
+    container: "body",
+    // invert buttons
+    invertButtons: false
   };
 
   // our public object; augmented after our private API
@@ -317,8 +319,13 @@
 
   exports.confirm = function() {
     var options;
-
+    var invertButtons = defaults.invertButtons;
+    
     options = mergeDialogOptions("confirm", ["cancel", "confirm"], ["message", "callback"], arguments);
+
+    if (options.invertButtons != undefined) {
+      invertButtons = options.invertButtons;
+    }
 
     /**
      * overrides; undo anything the user tried to set they shouldn't have
@@ -335,8 +342,15 @@
     if (!$.isFunction(options.callback)) {
       throw new Error("confirm requires a callback");
     }
+    
+    var dialog = exports.dialog(options);
 
-    return exports.dialog(options);
+    if (invertButtons) {
+      var modalFooterButtons = dialog.find(".modal-footer :button");
+      modalFooterButtons.last().insertBefore(modalFooterButtons.first());
+    }
+
+    return dialog;
   };
 
   exports.prompt = function() {
